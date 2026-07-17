@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon LP Stories — STAR-L Flash Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f0e7; --paper-2:#efe9dc;
+    --ink:#161514; --rule:#111;
+    --teal:#1f97ae; --teal-soft:#5bc0d0;
+    --coral:#e0514c; --amber:#c98a2b; --muted:#726c60; --line:#d8d0be;
+    --code-bg:#191f26; --code-fg:#e7e3d8;
+    --disp:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);background-image:linear-gradient(var(--line) 1px, transparent 1px);background-size:100% 34px;color:var(--ink);font-family:var(--mono);min-height:100vh;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:840px;margin:0 auto;padding:26px 18px 60px;}
+
+  .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);font-weight:700;}
+  h1{font-family:var(--disp);font-weight:700;font-size:clamp(26px,6vw,44px);line-height:.98;letter-spacing:-.01em;margin:4px 0 8px;}
+  .sub{font-size:13px;color:var(--muted);line-height:1.55;max-width:66ch;}
+  .rule{height:6px;background:var(--rule);border-radius:2px;margin:12px 0 14px;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11.5px;color:var(--muted);margin:0 0 16px;align-items:center;}
+  .legend b{color:var(--ink);}
+  .dot{display:inline-flex;align-items:center;gap:6px;}
+  .pip{width:11px;height:11px;border-radius:50%;display:inline-block;border:2px solid;}
+  .pip.core{background:var(--coral);border-color:var(--coral);}
+  .pip.common{background:transparent;border-color:var(--teal);}
+  .pip.todo{background:transparent;border-color:var(--amber);}
+
+  .filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+  .chip{font-size:11.5px;font-weight:600;letter-spacing:.02em;padding:6px 11px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:20px;cursor:pointer;transition:.12s;}
+  .chip:hover{background:var(--paper-2);}
+  .chip.active{background:var(--ink);color:var(--paper);}
+
+  .stage{perspective:1600px;margin-bottom:16px;}
+  .card{position:relative;width:100%;min-height:510px;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1);cursor:pointer;}
+  .card.flipped{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fbf8f1;border:2.5px solid var(--ink);border-radius:14px;box-shadow:7px 8px 0 rgba(17,17,17,.9);padding:24px 24px 20px;display:flex;flex-direction:column;overflow:hidden;}
+  .toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .eyebrow{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--teal);}
+  .tier{font-family:var(--disp);font-weight:700;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+  .tier.core{background:var(--coral);color:#fff;}
+  .tier.common{background:transparent;color:var(--teal);border:1.5px solid var(--teal);}
+  .tier.todo{background:transparent;color:var(--amber);border:1.5px solid var(--amber);}
+
+  .front{align-items:stretch;text-align:center;}
+  .front .center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+  .lpname{font-family:var(--disp);font-weight:700;letter-spacing:-.01em;line-height:1.03;font-size:clamp(22px,4.8vw,36px);}
+  .storytitle{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.4;max-width:38ch;}
+  .sampleq{margin-top:14px;border:1.5px dashed var(--teal);background:#eef8fa;border-radius:10px;padding:9px 14px;max-width:42ch;}
+  .sampleq .qlabel{font-family:var(--disp);font-weight:700;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:4px;}
+  .sampleq .qtext{font-size:12px;line-height:1.4;color:#123a41;font-style:italic;}
+  .underbar{height:5px;width:min(360px,72%);background:var(--rule);border-radius:2px;margin:16px auto 0;}
+  .flip-hint{margin-top:16px;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px;}
+  .flip-hint b{color:var(--coral);font-weight:700;}
+  .arrow{color:var(--coral);font-family:var(--disp);font-weight:700;}
+
+  .back{transform:rotateY(180deg);}
+  .backscroll{overflow-y:auto;flex:1;display:flex;flex-direction:column;padding-right:3px;}
+  .backscroll::-webkit-scrollbar{width:7px;}
+  .backscroll::-webkit-scrollbar-thumb{background:#cfc7b4;border-radius:4px;}
+  .bterm{font-family:var(--disp);font-weight:700;font-size:clamp(17px,3.6vw,22px);margin:3px 0 2px;line-height:1.08;}
+  .company{font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .thinrule{height:3px;background:var(--rule);border-radius:2px;margin:0 0 11px;}
+
+  .star{margin:0 0 12px;}
+  .star-row{display:flex;gap:9px;margin:0 0 7px;align-items:flex-start;}
+  .star-tag{flex:0 0 auto;font-family:var(--disp);font-weight:700;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--ink);border-radius:5px;padding:2px 7px;margin-top:1px;}
+  .star-row.learning .star-tag{background:var(--teal);}
+  .star-text{font-size:12px;line-height:1.48;color:#242019;}
+  .star-text strong{color:var(--teal);font-weight:700;}
+
+  .probs{margin:0 0 11px;}
+  .plabel{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--coral);font-weight:700;margin-bottom:6px;}
+  .problist{display:flex;flex-direction:column;gap:5px;}
+  .probitem{font-size:11.5px;line-height:1.4;color:#3a2320;background:#fbeeec;border-left:3px solid var(--coral);border-radius:0 6px 6px 0;padding:6px 9px;}
+
+  .todo-box{border-left:4px solid var(--amber);background:#fbf3e6;border-radius:0 8px 8px 0;padding:11px 13px;margin:0 0 12px;font-size:12px;line-height:1.5;color:#4a3714;}
+  .todo-box b{color:var(--amber);}
+
+  .cx{margin-top:auto;padding-top:10px;font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;letter-spacing:.02em;border-top:1px dashed var(--line);}
+  .cx b{color:var(--ink);font-weight:700;}
+
+  .controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px;}
+  .navbtn{font-family:var(--disp);font-weight:700;font-size:14px;padding:11px 16px;border:2.5px solid var(--ink);background:#fbf8f1;color:var(--ink);border-radius:11px;cursor:pointer;transition:.1s;box-shadow:3px 4px 0 rgba(17,17,17,.85);}
+  .navbtn:hover{transform:translate(-1px,-1px);box-shadow:4px 5px 0 rgba(17,17,17,.85);}
+  .navbtn:active{transform:translate(2px,3px);box-shadow:1px 1px 0 rgba(17,17,17,.85);}
+  .flipbtn{background:var(--coral);color:#fff;}
+  .counter{font-family:var(--disp);font-weight:700;font-size:15px;text-align:center;min-width:70px;}
+  .counter small{display:block;font-family:var(--mono);font-weight:500;font-size:9.5px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-top:2px;line-height:1.3;}
+  .util{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+  .util .navbtn{font-size:12px;padding:8px 13px;box-shadow:2px 3px 0 rgba(17,17,17,.85);}
+  .foot{margin-top:26px;font-size:11px;color:var(--muted);text-align:center;line-height:1.7;}
+  .kbd{font-family:var(--mono);border:1px solid var(--muted);border-radius:5px;padding:1px 6px;font-size:10.5px;}
+  @media (max-width:520px){.face{padding:18px 16px;}.navbtn{padding:10px 12px;}body{background-size:100% 30px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Your STAR-L bank · pulled from prep sessions · +suspected probes</div>
+    <h1>Amazon LP Stories</h1>
+    <p class="sub">Your actual story bank from the interview-prep sessions, turned into flip cards — grouped by the loop round each Leadership Principle tends to show up in. Front: the LP, the story's nickname, and a sample question an interviewer might actually open with. Back: Situation → Task → Action → Result → Learning, plus the follow-up probes a Bar Raiser is likely to dig into.</p>
+    <div class="rule"></div>
+    <div class="legend">
+      <span class="dot"><span class="pip core"></span><b>Primary</b> — your lead story for that LP</span>
+      <span class="dot"><span class="pip common"></span><b>Backup</b> — 2nd story, same LP</span>
+      <span class="dot"><span class="pip todo"></span><b>To Draft</b> — not built yet</span>
+    </div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+
+  <div class="stage">
+    <div class="card" id="card" onclick="flip()">
+      <div class="face front">
+        <div class="toprow"><span class="eyebrow" id="f-track"></span><span class="tier" id="f-tier"></span></div>
+        <div class="center">
+          <div class="lpname" id="f-lp"></div>
+          <div class="storytitle" id="f-title"></div>
+          <div class="sampleq"><span class="qlabel">&#x25B8 Interviewer might ask</span><span class="qtext" id="f-sampleq"></span></div>
+          <div class="underbar"></div>
+          <div class="flip-hint"><span class="arrow">&#x21BB;</span> flip for STAR-L &amp; likely probes</div>
+        </div>
+      </div>
+      <div class="face back">
+        <div class="backscroll">
+          <div class="toprow"><span class="eyebrow" id="b-track"></span><span class="tier" id="b-tier"></span></div>
+          <div class="bterm" id="b-lp"></div>
+          <div class="company" id="b-company"></div>
+          <div class="thinrule"></div>
+          <div id="b-body"></div>
+          <div class="cx" id="b-cx"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="navbtn" onclick="prev(event)">&#x2039; Prev</button>
+    <div class="counter"><span id="pos">1</span> / <span id="total">1</span><small id="deckname">All</small></div>
+    <button class="navbtn" onclick="next(event)">Next &#x203A;</button>
+  </div>
+  <div class="util">
+    <button class="navbtn flipbtn" onclick="flip(event)">Flip &#x27F3;</button>
+    <button class="navbtn" onclick="shuffle(event)">Shuffle &#x2928;</button>
+    <button class="navbtn" onclick="todoOnly(event)">To Draft &#x2605;</button>
+    <button class="navbtn" onclick="reset(event)">Reset &#x21BA;</button>
+  </div>
+
+  <p class="foot">
+    <span class="kbd">&#x2190;</span> / <span class="kbd">&#x2192;</span> navigate &nbsp;·&nbsp; <span class="kbd">Space</span> flip &nbsp;·&nbsp; <span class="kbd">S</span> shuffle &nbsp;·&nbsp; <span class="kbd">C</span> to-draft only<br>
+    25 cards &nbsp;·&nbsp; rebuild from your prep chats &nbsp;·&nbsp; fill every [bracket] with a real number before the loop
+  </p>
+</div>
+
+<script>
+const CARDS = [
+/* ===== ORIENTATION ===== */
+{track:"Orientation",tier:"common",lp:"Loop Structure",title:"Which LPs show up in which round",
+ company:"Your 4-round SDE loop plan",
+ star:[["s","Round 1: Dive Deep + Invent and Simplify. Round 2: Earn Trust + Learn and Be Curious. Round 3: Deliver Results + Insist on the Highest Standards. Round 4: Bias for Action + Have Backbone; Disagree and Commit. Customer Obsession and Ownership tend to surface across any round as general-purpose questions."]],
+ probes:["Know which 2 stories you'd lead with per round before you walk in \u2014 don't decide live."],
+ cx:["match your <b>strongest</b> story to each round"]},
+
+{track:"Orientation",tier:"common",lp:"The STAR-L Format",title:"How every card on the back is structured",
+ company:"Situation \u00B7 Task \u00B7 Action \u00B7 Result \u00B7 Learning",
+ star:[["s","<strong>Situation</strong>: the specific context \u2014 name the company, the system, the concrete symptom."],["t","<strong>Task</strong>: what you specifically needed to accomplish or decide."],["a","<strong>Action</strong>: what YOU did, in first person \u2014 not \"we.\" This is where Bar Raisers dig hardest."],["r","<strong>Result</strong>: the outcome, quantified wherever you have a real number."],["learning","<strong>Learning</strong>: what you'd do differently or what it taught you \u2014 the \"+L\" that most candidates skip."]],
+ probes:["Every [bracket] in your stories is a real number only you have \u2014 fill them in before the loop, invented numbers fall apart under follow-up."],
+ cx:["emphasize <b>your</b> contribution, not the team's"]},
+
+/* ===== ROUND 1 ===== */
+{track:"Round 1 \u00B7 Dive Deep",tier:"core",lp:"Dive Deep",title:"Root-causing a reliability gap in a multi-agent system",
+ company:"AWS \u00B7 strongest, on-domain",
+ sampleQ:"Tell me about a time you had to dive deep into data or details to find the root cause of a problem others treated at surface level.",
+ star:[
+   ["s","At AWS, multi-agent AI systems in production were occasionally having memory drifts. The easy fix was to clear the caches."],
+   ["t","I wanted to find the actual root cause before shipping anything, not just a fix for the symptom."],
+   ["a","So I went deep into Langraph's reducer function's payload, traced the failure to its root cause which was a stale state, caused by a custom reducer's merging logic overwriting the current state when adding new agent responses."],
+   ["r","I fixed the actual cause \u2014 by switching to spec driven development, and coding a deep merge pattern for the dictionaries that store the state, which prevented agents from erasing each other's memories, and improved the mttr-a to 0.87. The \"obvious\" fix people first suggested wouldn't have solved it at all."],
+   ["learning","The first plausible explanation is usually wrong or incomplete. Diving into the data before committing to a fix saves you from solving the wrong problem. I call it measuring twice before cutting once."]
+ ],
+ probes:[
+ "What did the data actually show, step by step? I started with the symptom: agents in production were occasionally acting on stale or missing context — what looked like 'memory drift'. Step one was tracing the actual state object across a full run, not just looking at the final output — I logged the state at each node transition in the LangGraph execution and compared what each agent wrote versus what the next agent actually received. That's where I saw the first real signal: when Agent B responded after Agent A, some of Agent A's keys were simply gone from the state by the time Agent B's response landed — not corrupted, just absent, which pointed away from a caching or timing issue and toward something structural in how state was being combined. That led me into the reducer function itself. I traced through the merge logic step by step and found the custom reducer was doing a shallow merge — when Agent B's response dict came in, it was overwriting the whole nested value at a shared key rather than merging into it, so anything Agent A had written under that same key got clobbered. I confirmed it wasn't a one-off by reproducing it with a minimal two-agent test case that wrote to overlapping keys — it failed deterministically every time, which is what told me I'd found the actual mechanism, not just a correlated symptom.",
+ "What was the 'obvious' fix, and why was it wrong? The obvious fix on the table was clearing the caches — treating it as a transient, environment-level glitch that a fresh state would resolve. It was tempting because it's a five-minute change and the symptom would appear to go away for a while. But it was wrong for two reasons: first, it doesn't address the actual mechanism — the reducer's shallow-merge overwrite would happen again the very next time two agents wrote to the same state key, so we'd be back in the same incident within days, not fixed. Second, and worse, clearing caches indiscriminately would have also wiped legitimate state that agents genuinely needed, so it risked trading an intermittent bug for a guaranteed one — losing real context, not just stale context. It was solving for 'the errors stopped for now,' not the bug is gone.",
+ "How long did the investigation take, and how did you know when to stop digging? Like 3 or 4 days. I knew I'd actually found the root cause, rather than just a plausible-looking correlation, when I could reproduce the failure deterministically with a minimal repro — two agents, one shared state key, shallow merge — rather than only seeing it intermittently in production logs. Once I had a repro that failed every time, and the deep-merge fix made that same repro pass every time, that was my signal to stop: I wasn't just theorizing about a cause anymore, I had a test that proved cause and effect in both directions. I also validated it beyond the repro — ran it through staging under realistic multi-agent load before calling it resolved, which is where the MTTR-A improvement to 0.87 came from"
+ ],
+ cx:["also covers: <b>Highest Standards</b>, <b>Are Right A Lot</b>, <b>Earn Trust</b>"]},
+
+{track:"Round 1 \u00B7 Dive Deep",tier:"common",lp:"Dive Deep",title:"Diagnosing cross-service performance issues",
+ company:"Apex Systems \u00B7 2nd story",
+ sampleQ:"Describe a situation where you had to analyze data to understand why something wasn't performing as expected.",
+ star:[
+   ["s","At Apex systems on the US Army AI2C project, front-end data efficiency and cross-service performance were degrading. The team's working assumption that REST is just slow was too vague"],
+   ["t","I needed to know precisely where the performance was actually being lost before committing time to any migration."],
+   ["a","So I dug into real request patterns and payloads across services, identified the specific issues,over-fetching of data, chatty N+1 calls, and I used that to justify moving specific legacy REST endpoints to gRPC and GraphQL \u2014 targeting the real bottleneck, without migrating everything."],
+   ["r","I improved cross-service performance and front-end data efficiency, while avoiding the cost of a full, unnecessary migration."],
+   ["learning","\u201cIt's slow\u201d isn't a diagnosis. Data-driven root-causing meant fixing the 20% of calls causing 80% of the pain instead of rewriting everything."]
+ ],
+ probes:[
+ "How did you measure where the time was actually going? I didn't start from 'REST is slow' — I started from instrumenting the actual request path. I pulled request/response logging and timing across the service calls the frontend was making, looking specifically at payload sizes and call counts per user action, not just aggregate latency. That's where the pattern showed up: a single frontend action was triggering a chain of sequential REST calls — the classic N+1 pattern — where fetching a parent resource and then its related resources meant one call becoming 60 calls, each with its own network round-trip. I also compared payload sizes actually used by the frontend against what each endpoint returned, and found several endpoints were over-fetching — returning full objects when the UI only rendered two or three fields. Between the call-count multiplication and the oversized payloads, I could point to specific endpoints responsible for the bulk of the latency, rather than treating 'REST' as one undifferentiated thing to blame.",
+ "Why gRPC and GraphQL specifically, and not something else? I picked them because they solved the two distinct problems the data actually showed, not because they're popular. The N+1 chatty-call problem was fundamentally about too many round-trips for related data — GraphQL let the frontend request exactly the related data it needed in a single query instead of chaining sequential REST calls, which directly collapsed that N+1 pattern. The over-fetching problem was about oversized payloads on the endpoints — again GraphQL's field-level querying solved that by letting consumers ask for only what they render. gRPC I reserved for the specific service-to-service calls, not the frontend-facing layer, where the priority was raw performance and strongly-typed contracts between internal services under real load — its binary protocol and HTTP/2 multiplexing gave us lower overhead there than REST would. I did consider alternatives — for instance, just adding a batching/aggregation layer in front of the existing REST endpoints, which would have been a smaller change. I ruled it out because it would have put a bandaid over the N+1 problem instead of eliminating it, and it added another layer to maintain without addressing the over-fetching at all.",
+ "What would you have done if the data had pointed somewhere else? If the data had shown, say, that the bottleneck was actually database query performance or backend compute rather than the API layer's chattiness, I wouldn't have touched the API protocol at all — that would have been the wrong fix entirely, and switching to gRPC/GraphQL wouldn't have moved the needle since the transport layer wasn't the bottleneck. In that case I'd have looked at query optimization, indexing, or caching at the data layer instead. That's really the core of why I insisted on measuring first — the fix has to match where the data says the cost actually lives, and I was fully prepared for the answer to be something other than an API migration. The measurement came before any conclusion about the solution, not after."
+ ],
+ cx:["also covers: <b>Invent and Simplify</b>, <b>Highest Standards</b>, <b>Deliver Results</b>"]},
+
+{track:"Round 1 \u00B7 Invent and Simplify",tier:"core",lp:"Invent and Simplify",title:"Simplifying UI complexity on a regulated clinical-trial product",
+ company:"About Objects \u00B7 strongest, clear before/after",
+ sampleQ:"Tell me about a time you simplified something that had become overly complex.",
+ star:[
+   ["s","At About Objects, the clinical-trial platform's front end had grown into a tangle of inconsistent, one-off components \u2014 every new feature meant more duplicated, hard-to-maintain UI code, which is especially risky on a regulated product."],
+   ["t","I pushed to simplify the underlying approach before adding more surface area to it, rather than accepting \u201cthat's just how the codebase is.\u201d"],
+   ["a","I led the architecture of a modular React/Next.js platform applying atomic CSS and component-driven design \u2014 breaking the UI into a small set of composable primitives instead of one-off implementations, using TypeScript, Redux Toolkit, and Tailwind to enforce consistency."],
+   ["r","I reduced UI complexity and improved scalability and consistency across the product, 90% fewer duplicated components which in turn created a 70% faster feature delivery afterward."],
+   ["learning","Simplifying wasn't about doing less \u2014 it was investing upfront in the right abstraction so every future feature got cheaper to build, which matters a lot in a regulated environment."]
+ ],
+ probes:[
+ "What specifically made it 'atomic CSS' rather than just component reuse? \r\n Component reuse just means not duplicating a component — you could still have five different buttons with five different padding/color/spacing values baked in, each 'reused' within its own feature. Atomic CSS goes a layer deeper: instead of components owning their own bespoke styles, they compose from a small, fixed set of utility classes — spacing, color, typography tokens — that are shared across the entire system.",
+ "What pushback did you get on spending time simplifying instead of shipping features? The Product owner was concerned that time spent on a component system was time not spent on the features actually on the roadmap, especially on a client engagement with visible deadlines. My response wasn't to argue the abstract value of clean architecture — I scoped it narrowly: I proposed building the atomic system incrementally, driven by the next 2–3 features that were already planned, so the 'simplification work' and the 'feature work' were the same commits. That let me show a concrete before/after on the first feature — 40% less code and fewer review comments on styling — within the 2 week sprint, which made the case for continuing on the next features rather than needing to win the argument up front on faith.",
+ "How did you measure the complexity reduction? A few concrete signals: We went from N one-off button/card/input variants to a fixed set of M primitives), the diff size or time-to-ship on subsequent features that reused the system versus ones that predated it, and a huge drop in style-related code review comments since there was no longer a decision to make about spacing or color. We also had fewer accessibility/contrast defects because tokens enforced compliant color pairs."
+ ],
+ cx:["also covers: <b>Highest Standards</b>, <b>Think Big</b>, <b>Deliver Results</b>"]},
+
+{track:"Round 1 \u00B7 Invent and Simplify",tier:"common",lp:"Invent and Simplify",title:"Simplifying integration complexity with AppSync/GraphQL",
+ company:"Apex Systems \u00B7 2nd story",
+ sampleQ:"Describe a time you invented a new solution or process to solve a recurring problem.",
+ star:[
+   ["s","At Apex Systems, frontend applications, backend services, and external platforms needed to communicate reliably, but the integration layer was growing more complex with every new consumer and data source."],
+   ["t","I wanted to simplify how these systems talked to each other rather than let integration complexity keep compounding."],
+   ["a","I designed and implemented GraphQL APIs and integration layers using AWS AppSync, replacing fragmented, ad hoc integration patterns with a single, consistent interface \u2014 cutting the number of custom paths developers had to reason about."],
+   ["r","I improved scalability and developer productivity, reduced integration time by 60% for new consumers and way fewer integration-related bugs."],
+   ["learning","A consistent interface at the boundary pays for itself every time a new consumer gets added \u2014 the win adds up instead of the complexity."]
+ ],
+ probes:[
+ "What did the old integration pattern look like, concretely? Before AppSync, the frontend applications were talking to backend services and external platforms through a mix of direct REST calls to individual services / point-to-point integrations, so every new consumer — a new frontend feature, a new internal tool, a new external platform — meant writing and maintaining its own integration path. There was no single contract; each team calling a given service had to know its specific REST shape, versioning, and error handling. That meant at least 40 different integration points to think about, and a schema change on the backend could silently break a consumer that wasn't in the loop, because there was no shared, typed contract enforcing what data was actually available.",
+ "How did you decide GraphQL/AppSync was the right simplification, versus another approach? I considered a few options: standardizing REST conventions and versioning more strictly, introducing a lightweight API gateway with routing rules, or moving to a typed contract-first approach like GraphQL. I picked GraphQL with AppSync specifically because the core problem wasn't request routing — it was that consumers needed different shapes of data from the same underlying services, and REST was forcing either over-fetching or a proliferation of custom endpoints to serve each use case. GraphQL let each consumer query exactly the shape it needed from one typed schema, which solved the actual root cause rather than just organizing the REST sprawl more neatly. AppSync specifically because it's managed — it gave us built-in resolvers, subscriptions, and auth integration with Cognito and IAM without us having to run and operate a GraphQL server ourselves, which mattered given the team's size and how much else we were already owning operationally.",
+ "Any trade-offs you accepted to get that simplicity? Yes — a few real ones. First, there was a learning curve: engineers used to REST had to get comfortable with GraphQL schema design, resolvers, and query patterns, so I spent time pairing, making documentation, and setting conventions early on to keep the schema consistent rather than let it fragment the same way REST had. Second, caching got more complex — REST's per-endpoint HTTP caching was straightforward, and GraphQL's single-endpoint model meant we had to be more deliberate about our caching strategy at the resolver or client level. Third, there's a risk with GraphQL that an unbounded or poorly designed query can be expensive on the backend, so we had to add query complexity limits and depth limiting that a REST endpoint wouldn't have needed. None of these were blockers, but I was explicit with the team that we were trading some short-term unfamiliarity and caching simplicity for long-term consistency and lower integration cost — I didn't want to sell it as a free win."
+ ],
+ cx:["also covers: <b>Customer Obsession</b> (developer-as-customer), <b>Deliver Results</b>, <b>Think Big</b>"]},
+
+/* ===== ROUND 2 ===== */
+{track:"Round 2 \u00B7 Earn Trust",tier:"core",lp:"Earn Trust",title:"Transparent trade-offs on a ProServe timeline",
+ company:"American Kennel Club",
+ sampleQ:"Tell me about a time you had to earn the trust of a skeptical stakeholder or team.",
+ star:[
+   ["s","At American Kennel Club, I was under pressure to commit early to a delivery timeline for a new build, before there was enough signal to know if that date in 2 months was realistic."],
+   ["t","I wanted to give an honest estimate rather than a confident-sounding guess that might not hold up."],
+   ["a","I proposed a phased plan instead: a rough prototype by a set date to de-risk the approach, then a committed timeline once there was real signal to base it on."],
+   ["r","The prototype validated the approach, and stakeholders trusted later estimates more because the first one had been honest rather than optimistic."],
+   ["learning","Trust compounds \u2014 one honest \u201cI don't know yet, here's how I'll find out\u201d is worth more long-term than several confident-sounding guesses that don't hold up."]
+ ],
+ probes:[
+ "What was the pressure to commit early, specifically? The pressure came from the AKC website timeline itself — the modernization engagement had a customer-facing delivery date already set, and stakeholders wanted a firm commitment on when the Sponsored Content solution would be ready so they could plan the rest of the engagement around it. There was an implicit expectation that because I'd built similar things before, I should be able to give a confident date on day one. The pressure wasn't hostile — it was reasonable, since their whole engagement plan depended on it — but it would've been easy to just give them the date they wanted to hear rather than the date I could actually stand behind.",
+ "How did the stakeholder react to hearing 'I don't know yet'? Initially there was some friction — a bit of 'we need something to plan around,' which is fair. What changed the tone was that I didn't just say 'I don't know,' I paired it with a concrete plan: a specific date for a prototype that would tell us whether the approach was viable, and what I'd be looking at to make that call. That gave them something to plan around even without a final commitment — they could tell their own stakeholders 'we'll have a validated timeline by June' instead of either a guess or total silence. By the time the prototype came back, the relationship had shifted from 'give us a number' to 'we trust your process for getting to the number.'",
+ "Did you ever get it wrong \u2014 overpromise and have to walk it back? Yes, earlier in my career at American Kennel Club, I gave an estimate for converting a Dog Naming Tool I built previously for the old version of the website, over to the new WordPress based website I assumed it woul.d take only 1 day to port over. Partway through, I discovered that some additional work was needed, which meant the original timeline wasn't realistic. I went back to the stakeholder as soon as I knew, explained specifically what I'd gotten wrong and why, and gave them a revised estimate with more margin. It wasn't a comfortable conversation, but it was much better than staying quiet and missing the date with no warning."
+ ],
+ cx:["also covers: <b>Customer Obsession</b>, <b>Dive Deep</b>, <b>Ownership</b>"]},
+
+{track:"Round 2 \u00B7 Earn Trust",tier:"common",lp:"Earn Trust",title:"Earning a multi-squad org's trust without direct authority",
+ company:"Zivaro \u00B7 2nd story",
+ sampleQ:"Describe a time you had to influence a team or group you didn't have formal authority over.",
+ star:[
+   ["s","At Zivaro, I led initiatives to implement AgGrid, Material UI, Storybook patterns across a large multi-squad engineering org building mission-critical defense platforms for the Space Force\u2014 squads with different priorities had some skepticism about a shared component effort that would actually serve them."],
+   ["t","I needed buy-in from squads not under my management, which meant earning trust rather than mandating adoption."],
+   ["a","I was upfront with squad leads about what the shared patterns would and wouldn't solve for them, incorporated their feedback into the actual component design instead of presenting a finished mandate, and was honest when a squad's use case genuinely didn't fit rather than forcing it."],
+   ["r","I reduced UI defects and accelerated feature delivery org-wide 75%, with organic adoption across squads rather than top-down enforcement."],
+   ["learning","In a large org without direct authority, trust is the only lever that scales \u2014 and it's earned by being honest about limitations, not by overselling."]
+ ],
+ probes:[
+ "Give me an example where a squad's use case genuinely didn't fit \u2014 what did you do? One squad was building a highly specialized data-grid view — dense, custom filtering and inline editing behavior that didn't map cleanly onto the shared AgGrid/Material UI patterns the rest of the org had converged on. My first instinct was to push them toward the shared pattern anyway, since that's what the initiative was optimizing for. But when I actually sat with their use case, it was clear that forcing it would mean either stripping functionality their users genuinely needed, or hacking around the shared component in ways that would make it fragile for everyone else who depended on it. So instead of insisting, I told them directly: this doesn't fit, use a custom implementation for this specific view, and I'll keep the shared pattern flexible enough that you can still pull in the pieces that do apply — the base styling and testing conventions, for instance — without forcing the whole thing. I didn't want 'adopt the shared pattern' to become a rule I enforced past the point it made sense.",
+"How did you handle a squad that pushed back on adopting it? One squad lead was skeptical up front — they'd been burned before by a 'standardization' effort that turned into extra migration work with no real benefit to their team. Rather than argue that skepticism away, I asked what specifically had gone wrong last time, and it came down to: the shared thing had been designed in isolation and then handed down, so it didn't actually fit anyone's real workflow. So I asked if I could just show them a working prototype using their actual component needs — not a slide deck, not a mandate — and let them tell me where it broke. It didn't fit perfectly on the first pass; I went back and adjusted [specific — e.g., a prop API, a styling override point] based on their feedback before they adopted anything. They came around not because I convinced them with argument, but because I let their own use case shape the outcome, which is what the earlier effort hadn't done."
+ ],
+ cx:["also covers: <b>Deliver Results</b>, <b>Invent and Simplify</b>, <b>Are Right A Lot</b>"]},
+
+{track:"Round 2 \u00B7 Learn and Be Curious",tier:"core",lp:"Learn and Be Curious",title:"Picking up agentic AI and LangGraph from a frontend background",
+ company:"About Objects \u00B7 strongest, shows real growth",
+ sampleQ:"Tell me about a time you had to learn a new skill or technical domain quickly to do your job.",
+ star:[
+   ["s","My experience at AstraZeneca was a frontend-heavy \u2014 React, Next.js, component architecture. The team needed multi-agent workflows and retrieval systems built with LangGraph and AWS Bedrock, a very different discipline."],
+   ["t","I chose to learn agentic AI and RAG well enough to build production workflows in it, rather than stay in the frontend lane."],
+   ["a","I took some AI courses, \u2014 built small prototypes, paired with ML engineers, tested assumptions against real system behavior instead of assuming frontend intuitions would transfer."],
+   ["r","I successfully helped increase team velocity by 50%, shipping multi-agent workflows and retrieval systems that met the platform's reliability and performance requirements for the clinical trial application."],
+   ["learning","Frontend and backend design share more principles than expected (contracts, boundaries, failure isolation) \u2014 but that assumption had to be tested, not assumed, and it meant being willing to be a beginner again in front of a new team."]
+ ],
+ probes:[
+ "What's a backend assumption you got wrong at first? Early on, I underestimated how different agent orchestration is from a normal request-response API. My first attempt at a multi-agent workflow treated it too much like a linear function pipeline — agent A calls agent B calls agent C — and I didn't build in enough handling for cases where an agent's output was ambiguous or a tool call failed partway through. I ran into a specific issue where a retrieval step returned no results, and the workflow didn't have a clear way to recover — it either silently continued with bad context or just failed the whole run. That forced me to go back and rethink the design around explicit state management and failure handling between agent steps, rather than assuming the 'happy path' would be the common case.",
+ "How did more senior backend engineers respond to you designing this? A few things, deliberately. First, I didn't just get a prototype working on a happy-path example — I specifically tried to break it with edge cases: ambiguous documents, missing data, a tool call failing mid-workflow, to see if my understanding of the failure modes held up, not just the demo case. Second, I had a senior engineer review the design, not just the code, because surface-level LangGraph knowledge can produce something that runs but doesn't reflect a real understanding of state management or agent coordination — I wanted that checked. Third, I looked at what actually happened in production once it shipped: error rates, retry patterns, cases where the agent looped or stalled told me whether my mental model of the system matched its real behavior, and I kept iterating based on that rather than considering it 'done' once it compiled and ran once."
+ ],
+ cx:["also covers: <b>Dive Deep</b>, <b>Ownership</b>, <b>Highest Standards</b>"]},
+
+{track:"Round 2 \u00B7 Learn and Be Curious",tier:"todo",lp:"Learn and Be Curious",title:"Learning backend / FastAPI",
+ company:"Zivaro \u00B7 2nd story",
+ sampleQ:"Describe a time you were curious enough to explore an idea beyond what your role required.",
+ star:[
+ ["s","At Zivaro, I was asked to design distributed service architectures and API contracts using Python and FastAPI — backend systems work — despite most of my prior depth being on the frontend."],
+ ["t", "I needed to get genuinely competent in backend architecture, not just 'frontend engineer who can write some Python,' because the defense platform's reliability depended on it."],
+ ["a", "I Studied FastAPI, ECS, Aurora, Redis, and RabbitMQ in depth, built small prototypes to test assumptions about service orchestration and failure modes, and paired with backend engineers to validate my designs against real system behavior."],
+ ["r", "I successfully designed and implemented backend services that met the platform's scalability and performance requirements, increasing throughput by 20% and decreasing latency by 15% in the critical data processing pipeline."],
+ ["learning", "Curiosity isn't just about learning new syntax or libraries; it's about understanding the principles behind them and how they apply to real-world systems. Being willing to be a beginner again in a new domain is essential for growth."]
+ ],
+ probes:[
+  "What's a backend assumption you got wrong at first? Early on, I underestimated how different service orchestration is from frontend component architecture. My first attempt at designing a FastAPI service treated it too much like a monolithic application, and I didn't build in enough handling for cases where services might fail or return unexpected results. I ran into a specific issue where a dependent service was down, and my service didn't have a clear way to handle that gracefully — it either failed the request or returned incomplete data. That forced me to go back and rethink the design around explicit error handling and retries, rather than assuming the 'happy path' would be the common case.",
+  "How did more senior backend engineers respond to you designing this? I made sure to involve senior backend engineers early in the design process. I presented my initial service architecture and API contracts to them, and they provided feedback on potential failure modes and performance considerations that I hadn't fully accounted for. I also paired with them on implementing the services, which helped me understand best practices for service orchestration and deployment in a production environment. Their guidance was invaluable in ensuring that the services I designed were robust and met the platform's requirements."
+ ],
+ cx:[]},
+
+/* ===== ROUND 3 ===== */
+{track:"Round 3 \u00B7 Deliver Results",tier:"core",lp:"Deliver Results",title:"Driving $3M+ in e-commerce revenue despite full-stack scope",
+ company:"Reflexions \u00B7 strongest, has a hard number already",
+ sampleQ:"Tell me about a time you delivered a result despite significant obstacles.",
+ star:[
+   ["s","At Reflexions across full-stack e-commerce transportaion platform work for OMNY, MBTA Charlie Card, BART Clipper Card, the goal wasn't just shipping features \u2014 it was measurable business outcomes: conversion, checkout completion, and revenue."],
+   ["t","I owned delivery across the whole stack \u2014 frontend experience, backend services, payment integration, where a gap in any layer could tank the actual result."],
+   ["a","I prioritized the checkout flow specifically since that's where revenue is won or lost, iterated on conversion using real usage data, and handled the payment integration securely under real constraints, rather than treating feature complete as the finish line."],
+   ["r","I helped drive more than $23M in online revenue, with measurable improvements in customer conversion, checkout experience, and platform performance."],
+   ["learning","Delivering results means tracking the business metric the whole way through, not just closing tickets done and delivered value aren't the same thing."]
+ ],
+ probes:[
+ "How much of that $23M is directly attributable to your work versus the broader team/platform? I want to be clear about that — the $23M is the platform's total online revenue over the period I worked on it, not a number I'd claim solely for myself. My direct contribution was the checkout flow and payment integration, which is the part of the funnel closest to conversion, and within that scope I can point to checkout completion rate went from 40% to 80% and cart abandonment dropped by 30%, which is the piece I can actually attribute to my changes. The broader platform — merchandising, marketing, pricing — also drove revenue, and I wouldn't take credit for that. What I'd stand behind is that the checkout experience I built removed a specific pain point that was measurably costing conversions, and fixing it moved a metric I can defend, even if I can't cleanly separate my dollar contribution from the total.",
+ "What's a time a feature shipped on time but didn't move the metric, what did you do? Yes — while working on the MBTA website, we redesigned portions of the larger site for the CharlieCard, which is Boston's version of OMNY. Specifically, we redesigned the fares pages. It shipped on time, passed QA, and by every 'feature complete' measure it was done. But when I looked at the usage data afterward, checkout completion rate didn't move the way we expected — it actually dipped slightly. Rather than call it done because the ticket was closed, I went back into the usage data to understand why, and found that the new flow had added friction we hadn't anticipated — the redesigned fares pages, folded into the larger MBTA site's structure and conventions, made the CharlieCard purchase path more confusing rather than simpler for the specific way riders were trying to buy fares. I brought that back to the team as a real finding rather than letting 'shipped' stand in for 'successful.' Instead of trying to patch the friction within the existing site's structure, we made the case that CharlieCard needed its own dedicated experience rather than being a redesigned section of the larger MBTA site — and over about 6 weeks, we built a separate website specifically for CharlieCard, which is what actually resolved the friction and moved checkout completion in the right direction. What I took from it: 'on time and code complete' is a process metric, not a business outcome. The business result is the only thing that actually counts as delivered."],
+ cx:["also covers: <b>Customer Obsession</b>, <b>Ownership</b>, <b>Bias for Action</b>"]},
+
+{track:"Round 3 \u00B7 Deliver Results",tier:"common",lp:"Deliver Results",title:"Delivering under mission-critical constraints at hyperscale",
+ company:"Zivaro \u00B7 2nd story",
+ sampleQ:"Tell me about a time you had to balance speed of delivery against quality or stability requirements.",
+ star:[
+   ["s","I engineered React/Next.js applications for the US Space Force Hyperion platforms, a domain where cutting corners on testing coverage or stability to hit a date isn't an acceptable trade-off."],
+   ["t","I had to deliver features on schedule while maintaining at least 80% code testing coverage, performance, and stability in distributed systems at scale, without letting either side slip."],
+   ["a","I built tests with Jest, Playwright, and Cypress for end to end and automated testing as a non-negotiable part of the delivery process rather than an afterthought, and I had to de-scope a nonessential feature to protect stability, or catching a regression before release."],
+   ["r","I maintained 95% code coverage, performance, and stability for a mission-critical system while still delivering on the required cadence."],
+   ["learning","On systems where the cost of a defect is severe, protecting the non-negotiables isn't in conflict with delivery it is how you deliver."]
+ ],
+ probes:[
+ "Walk me through the specific trade-off call you made under pressure: There was some nice UI enhancement work that was requested for the next sprint, but it was nonessential to the core mission of the platform. I had to make a call between delivering that enhancement on time versus ensuring we had full test coverage and stability for the core functionality. I chose to de-scope the enhancement, communicated clearly with stakeholders about the reasoning, and focused on maintaining our testing standards. This decision ensured that we didn't introduce any regressions or stability issues into the production environment.",
+ "What would've happened without that test coverage in place? Without the test coverage, a small change in one part of the system could have introduced a regression that might not have been caught until after deployment. Given the mission-critical nature of the platform, this could have led to downtime or incorrect data being presented to users, which would have had serious consequences. The automated tests acted as a safety net, catching issues early and allowing us to maintain confidence in our releases."
+ ],
+ cx:["also covers: <b>Highest Standards</b>, <b>Ownership</b>"]},
+
+{track:"Round 3 \u00B7 Highest Standards",tier:"core",lp:"Insist on the Highest Standards",title:"Defining measurable quality standards for AI agents",
+ company:"AWS \u00B7 strongest, on-domain",
+ sampleQ:"Tell me about a time you refused to accept 'good enough' and insisted on a higher bar.",
+ star:[
+   ["s","At AWS, the contact center agent behavior was hard to trust in production. Quality was subjective, agents were very proballistic, and there was no measurable bar for what correct agent behavior meant."],
+   ["t","\u201cIt works in the demo\u201d wasn't a good enough bar for production \u2014 I took it on to define a rigorous, measurable standard for agent quality."],
+   ["a","I designed an automated testing pipeline with that takes updated agent test case files code from GitHub, GitLab, or CodeCommit uploads it to S3, creates the test and test ID, uses processor lambdas and splitter lambdas to trigger the Deepeval testing framework for LLM-as-a-Judge, LLM-as-a-Tester, or KB retrieval, or RAG checker pipelines ,scoring every change against a defined quality bar for behavior, workflow correctness, and ground truth. Wired the evals into CI/CD pipeline so regressions were caught before they ever reached production."],
+   ["r","I established the measurable standard, caught 90% of regressions automatically, and improved action completion rates and F1 scores around 0.80. Problems that used to occur were now caught the moment they were introduced."],
+   ["learning","High standards only hold if they're measurable and automated. A bar that depends on someone remembering to check will slip; a bar enforced by a pipeline stays fixed."]
+ ],
+ probes:[
+   "What threshold did you set, and why that one? \u2192 Different bars per failure mode, not one blanket number: correctness scored against a rubric calibrated against human spot-check judgment, not picked arbitrarily. Regression bar was stricter \u2014 zero tolerance, any drop below a previously-passing baseline blocked the deployment, since small silent drops compound in a system making autonomous decisions. The F1 bar was set between 0.70 and 0.85 because that was the point where human spot-checks agreed with the automated scoring 95% of the time, and below that the system was producing too many false positives to be reliable in production.",
+   "Walk me through a specific regression it caught. \u2192 A change meant to improve one metric silently broke a category of multi-step tasks; Deepeval flagged that outputs for that category no longer matched the expected pattern in 7 out of 12 test cases, well below baseline. I dug into why, turned out the change altered how context was passed to the agent, and it lost track of state a few turns in. Because the pipeline caught it before deployment, it never reached production; we fixed the change in the lambda code and re-ran the suite before shipping.",
+   "Did anyone push back on the extra rigor or the time it added? Yes — there was real pushback, mainly around the time cost of building the pipeline itself. The concern was that designing the S3 upload flow, the test/test-ID generation, the processor and splitter Lambdas, and wiring DeepEval's LLM-as-a-Judge and RAG-checker pipelines into CI/CD was a significant upfront investment, when the team could have just kept manually spot-checking agent behavior before releases and shipped faster in the short term.I addressed it by being honest that the investment wasn't free, but framing the actual trade-off: manual spot-checking doesn't scale as the number of agents and test cases grows, and it only catches what a human happens to think to check — it was already letting probabilistic failures slip through, which is exactly why we didn't have a measurable bar in the first place. I also de-risked the pushback by building it incrementally rather than asking for the whole pipeline upfront — I started with the test-case ingestion and one scoring pipeline (LLM-as-a-Judge) to prove the approach on a narrow slice before building out the KB retrieval and RAG-checker paths. Once that first piece caught a real regression that manual review had missed, the case for the rest of the investment made itself, and the pushback mostly dropped."
+ ],
+ cx:["also covers: <b>Ownership</b>, <b>Dive Deep</b>, <b>Invent and Simplify</b>"]},
+
+{track:"Round 3 \u00B7 Highest Standards",tier:"common",lp:"Insist on the Highest Standards",title:"Raising the engineering bar on a regulated clinical-trial product",
+ company:"About Objects \u00B7 2nd story",
+ sampleQ:"Describe a time you held your team to a higher standard than they were used to, and how they responded.",
+ star:[
+   ["s","At About Objects, Engineering maturity was uneven on a regulated clinical-trial product \u2014 testing for accessibility weren't where they needed to be for a product with real compliance and patient-safety stakes."],
+   ["t","I insisted on a higher accessibility testing bar, took responsibility for bringing the whole team up to snuff rather than just fixing issues personally."],
+   ["a","I mentored engineers in accessibility testing using WAVE and axedevtools, established accessibility standards, enforced practices in code reviews, and baked accessibility checks into CI/CD so regressions were caught automatically rather than relying on personal vigilance."],
+   ["r","I raised accessibilty compliance from WCAG 2.1 to 2.2, increased lighthouse scores to 98%, and because the team owned it, the standard stuck."],
+   ["learning","Being the one person who cares about quality doesn't scale. Raising a team's baseline is more durable and higher-impact than personally catching every defect."]
+ ],
+ probes:[
+   "How did you get buy-in for the added rigor? I connected it to something the team already cared about a defect or accessibility gap here wasn't just a bug, it was a compliance and patient-safety risk \u2014 and paired with engineers early so the value real debugging time saved proved itself rather than needing to be sold.",
+   "What did you do when someone resisted? I asked what specifically felt like overhead, found the legitimate part of the pushback which was retrofitting accessibility onto already-built components, and adjusted to apply the standard on new work going forward rather than demanding a retroactive rewrite kept the standard, and made the ask proportionate.",
+   "How did you make sure it stuck after you left? I baked it into PR review/CI rather than personal vigilance, wrote conventions as living documentation, made sure multiple engineers were fluent enough to enforce it in review and always explained the why, not just the rule."
+ ],
+ cx:["also covers: <b>Hire and Develop the Best</b>, <b>Ownership</b>, <b>Earn Trust</b>"]},
+
+{track:"Round 3 \u00B7 Highest Standards",tier:"common",lp:"Insist on the Highest Standards",title:"Arguing for the harder, correct fix over a patch",
+ company:"Mondo \u00B7 3rd story, backup",
+ sampleQ:"Tell me about a time you chose the harder, correct solution over a faster, easier one.",
+ star:[
+   ["s","On a high-traffic healthcare platform, legacy front-end systems for a healthcare-adjacent platform were causing reliability problems — the easy path would've been patching around the legacy code to hit deadlines."],
+   ["t","I insisted on actually modernizing into modular, cloud-native services (AWS EC2, CloudFront, RDS, Route53) rather than accepting continued patchwork as the standard."],
+   ["a"," I led the modernization effort, holding the line that the platform needed a real architectural fix, not another workaround, even though that meant more upfront work than a quick patch."],
+   ["r","Improved platform reliability and reduced downtime at scale for a high-traffic healthcare platform."],
+   ["learning","The highest standard isn't always the fastest path \u2014 sometimes it means arguing for the harder, correct fix over the easy patch."]
+ ],
+ probes:[
+ "Who pushed back on the extra time, and how did you convince them? The pushback came mainly from the product owner who was focused on hitting the near-term deadline, and patching the legacy code was the faster path to get there. Their concern was reasonable — a full modernization effort meant real upfront time that a patch wouldn't cost. I convinced them by reframing the comparison from 'patch vs. modernize' to the actual total cost over time: I walked through how many times we'd already patched around the same legacy issues, and how each patch was adding fragility rather than removing it — meaning the 'fast' path wasn't actually fast, it was borrowing time from the next incident. I paired that with reliability and downtime data specific to the platform to make the recurring cost concrete rather than abstract, and proposed doing the modernization in phases so we weren't asking for the full timeline cost upfront — the first phase targeted the highest-risk legacy component, which let leadership see reliability improve before committing to the rest.",
+ "What would've happened if you'd taken the patch approach instead? We'd have hit the near-term deadline faster, but the underlying reliability problems would have kept resurfacing — likely in a slightly different form each time, since patching legacy code without addressing the architecture tends to just relocate the fragility rather than remove it. Given this was a high-traffic healthcare platform, that would have meant continued unplanned downtime at scale, which is a worse outcome for patients/users trying to access the platform than the extra upfront time modernization cost us. It also would have meant repeating this same 'patch vs. fix' conversation again on the next incident, probably under even more time pressure than the first time — so the patch path doesn't actually avoid the cost, it just defers and compounds it."
+ ],
+ cx:["also covers: <b>Have Backbone; Disagree and Commit</b>, <b>Deliver Results</b>, <b>Ownership</b>"]},
+
+/* ===== ROUND 4 ===== */
+{track:"Round 4 \u00B7 Bias for Action",tier:"core",lp:"Bias for Action",title:"Rapid prototyping for AWS ProServe under incomplete requirements",
+ company:"Apex Systems \u00B7 strongest, on-domain",
+ sampleQ:"Tell me about a time you took action without waiting for complete information.",
+ star:[
+   ["s","At Apex, the US Army stakeholders came to me with a migration/modernization bottleneck, but requirements were vague \u2014 they knew the pain but hadn't specified a solution, and a complete spec would've taken weeks they didn't have."],
+   ["t","I could have waited for fully baked requirements, but that would've cost real time on a problem actively slowing customer delivery."],
+   ["a","I made a calculated bet: instead of waiting, built a rough working prototype on Bedrock from best understanding of the actual bottleneck \u2014 deliberately scoped small so a wrong guess cost days, not weeks \u2014 got it in front of the ProServe consultants fast and let their real reaction, not more speculation, decide what to build next."],
+   ["r","The prototype validated the direction / surfaced a wrong assumption early and cheaply, meaning the team course-corrected in days rather than discovering the gap after weeks of building against a theoretical spec."],
+   ["learning","Waiting for perfect information often costs more than the risk of an imperfect first attempt \u2014 the key was sizing the bet so being wrong stayed cheap."]
+ ],
+ probes:[
+   "What's the worst case if your early guess had been wrong? \u2192 A few days of throwaway work, scoped to one workflow/step \u2014 not a redesign of the customer's process, and nothing touching production systems or customer data. The downside ceiling was defined before starting.",
+   "How did you decide the prototype was 'small enough' to derisk it? \u2192 Two questions before starting: (1) if wrong, how long until I find out \u2014 kept it to days, not weeks; (2) does this touch anything I can't easily undo \u2014 kept it to a sandbox/standalone prototype, not live systems. Either answer being unfavorable means push for a lightweight spec conversation first.",
+   "Was there ever a time this approach backfired? \u2192 Yes \u2014 once moved forward without checking one assumption, which turned out different than expected and cost a few days of rework; a five-minute check-in would've caught it. Changed practice afterward: added one lightweight gut-check on the 1\u20132 assumptions that would be expensive if wrong, before starting \u2014 which is what protected the ProServe story."
+ ],
+ cx:["also covers: <b>Customer Obsession</b>, <b>Invent and Simplify</b>, <b>Dive Deep</b>"]},
+
+{track:"Round 4 \u00B7 Bias for Action",tier:"common",lp:"Bias for Action",title:"Adopting GenAI dev tools ahead of a team-wide mandate",
+ company:"AWS \u00B7 2nd story",
+ sampleQ:"Describe a time you moved forward on something before there was an official process or mandate to do so.",
+ star:[
+   ["s","Tools like Claude Code, Kiro, and Amazon Q were available but not yet a standard, proven part of the team's workflow \u2014 no directive to use them, easy to just wait for official guidance."],
+   ["t","I saw a chance to accelerate prototyping, implementation, and code review, but adopting new tooling into a security- and reliability-conscious workflow carried real risk if done carelessly."],
+   ["a","I started using them on a bounded set of tasks, kept every existing standard for testing, security review, and reliability checks fully in place around the tool's output \u2014 treating it as an accelerant, not a replacement for rigor \u2014 and shared what worked (and didn't) with the team as you went."],
+   ["r","Accelerated own prototyping and review cycles measurably, and 4 team members adopted the same practices / it influenced team tooling standards, with no drop in code quality or security posture."],
+   ["learning","Moving fast on a new tool doesn't mean lowering your bar for \u201cdone\u201d \u2014 it means using the tool to hit the existing bar faster."]
+ ],
+ probes:[
+   "What guardrails did you keep in place while using these tools? \u2192 Never merged without the same review a teammate's PR would get; kept existing test-coverage requirements rather than trusting the output as self-verifying; extra line-by-line scrutiny on anything touching auth, data access, or agent reasoning logic specifically, since a subtle mistake there is a security/reliability issue, not just a bug. I also created context documents for the coding agents to reduce hallucination risk, and kept the same CI/CD pipeline in place so nothing bypassed existing checks.",
+   "Was there a time the AI tool's output was wrong and you caught it \u2014 walk me through it? \u2192 Caught via the same edge-case checklist used on any code, mine or a teammate's \u2014 an edge case (e.g. an empty payload or race condition) that would've silently failed or returned incorrect data in production. Clean-looking code isn't the same as correct code \u2014 exactly the trap AI-generated code can set. Have one concrete, specific bug example locked in before the loop; this probe maps directly to what interviewers watch for in the coding rounds themselves.",
+   "How did you know it was safe to start using them before there was official guidance? \u2192 Didn't treat 'no guidance yet' as 'anything goes' \u2014 started with lower-stakes uses (prototyping, drafting, flagging issues for you to verify), not production-critical logic. Nothing bypassed existing security/code review/testing requirements, so the actual safety net was the unchanged review process, not the tool."
+ ],
+ cx:["also covers: <b>Learn and Be Curious</b>, <b>Highest Standards</b>, <b>Invent and Simplify</b>"]},
+
+{track:"Round 4 \u00B7 Have Backbone",tier:"core",lp:"Have Backbone; Disagree and Commit",title:"Pushing back on a proposed timeline, then committing",
+ company:"AWS \u00B7 strongest, general/all-purpose",
+ sampleQ:"Tell me about a time you disagreed with a decision made by your manager or leadership, and what you did.",
+ star:[
+   ["s","During a technical design review, there was pressure from stakeholders/leadership to commit to an aggressive timeline for a multi-agent AI feature that hadn't accounted for the reliability and evaluation work the system actually needed before it could safely reach production."],
+   ["t","Choice between going along with the timeline to avoid friction, or pushing back with the real technical assessment even though it wasn't the answer people wanted."],
+   ["a","I laid out specifically why the timeline was risky \u2014 the eval framework and reliability controls weren't optional polish, they were what would catch a specific failure mode before a customer did \u2014 and proposed a revised plan protecting the parts that mattered most while still moving as fast as responsibly possible. Once a final call was made \u2014 even if not fully what was proposed \u2014 committed to it fully and executed without relitigating."],
+   ["r","The plan was adjusted \u2014 eval framework and reliability controls stayed in scope, launch pushed back by 2 weeks \u2014 and during that time the eval work caught a real issue before it reached a customer, validating the pushback."],
+   ["learning","Disagreeing well means making the strongest case you can with reasoning, not just discomfort \u2014 and once the decision is made, committing fully is what earns you the standing to disagree again next time."]
+ ],
+ probes:[
+   "What was the actual outcome \u2014 did they take your suggestion or not? \u2192 They adjusted the plan and kept the eval work in scope; the extra time let it catch a real issue pre-launch, which validated the friction it caused in the room. (Be ready to also describe a time it went against you \u2014 a suspiciously clean 'I was right every time' story reads as unlikely.)",
+   "How did you commit to a decision you disagreed with, concretely \u2014 day to day? \u2192 Stopped voicing the disagreement in standups/reviews after making the case once; put energy into making the chosen path work as well as possible rather than doing the bare minimum or quietly building a parallel 'I told you so' case.",
+   "Was there ever a time you disagreed and it turned out you were wrong? \u2192 Yes \u2014 pushed back based on reasoning that missed new information or a constraint you weren't aware of; the other approach worked better. Changed practice: be explicit about what would change your mind, or seek one more piece of information before pushing back next time. (One of the highest-value probes to have a real answer for \u2014 refusing to admit ever being wrong reads as low self-awareness.)"
+ ],
+ cx:["also covers: <b>Highest Standards</b>, <b>Earn Trust</b>, <b>Dive Deep</b>"]},
+
+{track:"Round 4 \u00B7 Have Backbone",tier:"common",lp:"Have Backbone; Disagree and Commit",title:"Disagreeing on technical direction while leading a team",
+ company:"Reflexions \u00B7 2nd story",
+ sampleQ:"Describe a time you had to challenge a decision made above you while leading or representing a team.",
+ star:[
+   ["s","While leading a team of six at Reflexions Data, a stakeholder wanted a technical direction for a customer-facing platform believed to create real problems \u2014 performance, maintainability, architecture risk \u2014 down the line."],
+   ["t","As the person setting technical direction, staying quiet to avoid conflict would've been easier, but believed it was the wrong call for the system the team would own long-term."],
+   ["a","I raised the concern directly and specifically \u2014 the concrete risk and what you'd seen go wrong with similar choices before, not just 'I don't like this' \u2014 and proposed an alternative. Made sure the team understood the disagreement had been voiced, so they didn't think it had been missed. When the decision landed [in your favor / against your recommendation], committed to it visibly to the team rather than continuing to signal reluctance."],
+   ["r","Cost efficiency went up by 20% and maintainability improved, with the team fully aligned on the chosen direction and confident in the decision-making process."],
+   ["learning","Backbone isn't about winning the disagreement \u2014 it's about making sure the best case got heard before a decision was made, and then giving the decision a real chance to succeed afterward."]
+ ],
+ probes:[
+   "What happened if the decision went against you \u2014 how did you actually behave differently the next day? \u2192 Explained the full reasoning behind the decision to the team, including the parts argued against, so they understood why rather than just that. Kept your own work and code reviews at full effort \u2014 no passive signals like slower turnaround on a decision you hadn't chosen; a team that senses its lead hasn't committed won't fully commit either.",
+   "How did your team react to watching you disagree and then commit? \u2192 A couple of engineers asked directly whether you still thought it was the wrong call; told them honestly the case had been made, it didn't carry the day, and the job now was to make it work \u2014 and that you'd back them the same way if they did the same. Set a durable team norm: disagreement welcome before a decision, not litigated after one."
+ ],
+ cx:["also covers: <b>Ownership</b>, <b>Earn Trust</b>, <b>Highest Standards</b>"]},
+
+/* ===== GENERAL ===== */
+{track:"General \u00B7 Customer Obsession",tier:"core",lp:"Customer Obsession",title:"Working backward from ProServe migration pain",
+ company:"Mondo \u00B7 strongest, on-domain",
+ sampleQ:"Tell me about a time you went above and beyond to solve a customer's real problem, not just what they asked for.",
+ star:[
+   ["s","At Mondo, teams running enterprise cloud migrations kept hitting the same bottleneck — tightly coupled monolithic systems and legacy databases that were hard to untangle."],
+   ["t","The ask I got was framed around the migration timeline, but I wanted to understand what was actually blocking these teams before proposing an approach, rather than just accepting 'just migrate faster' as the real requirement."],
+   ["a","I found the real problem wasn't the migration effort itself — it was that the tight coupling meant you couldn't move one piece without dragging the whole monolith with it, so every migration attempt turned into an all-or-nothing rewrite that kept stalling out. Instead of proposing a big-bang replatform, I used the Strangler Pattern , designed for distributed service architectures and clear API contracts using Python and FastAPI, deliberately structured for fault isolation — so teams could peel pieces of the monolith apart and migrate them incrementally, one bounded service at a time, without the rest of the system breaking."],
+   ["r","I saw a 65% reduction in deployment risk and cut overall migration timelines by 40%, and teams were able to migrate specific services independently instead of being blocked waiting on a full-system rewrite."],
+   ["learning","The teams asked for help migrating faster, but the actual need was decoupling — working backward from where they were genuinely stuck, rather than the literal ask, is what led to an approach that actually unblocked them."]
+ ],
+ probes:[
+ "How did you confirm coupling was the real blocker and not just perceived difficulty? I didn't take 'it's tightly coupled' as a given — I traced actual dependency chains in the codebase and looked at migration attempt history. Specifically, I mapped which modules called into which, and where a single migration attempt had touched — how many other services broke or needed changes as a side effect of moving just one piece. That's what confirmed it wasn't perceived difficulty: I could point to concrete dependency chains where changing one module required touching like 10 others because of shared state or direct calls, not clean interfaces. I also looked at why previous migration attempts had stalled — in each case, the postmortem or team retro pointed to the same root cause, that a small change had cascaded into a much larger one than anyone planned for. Seeing that pattern repeat across multiple independent attempts, not just one team's experience, is what told me the coupling itself was the actual blocker, not any one team's execution.",
+ "What made a service 'bounded' enough to migrate independently — how did you decide the boundaries? I used the Strangler Pattern deliberately here — rather than trying to draw perfect service boundaries upfront, I looked for the seams in the monolith where a piece of functionality had the fewest, most well-defined touchpoints with the rest of the system: places where I could put a clear API contract in front of existing functionality, redirect traffic to a new service behind that contract, and let the old code path keep running underneath until the new service was proven out. Concretely, I prioritized pieces with [narrow, well-defined data ownership — e.g., a specific domain like fare calculation or user account data] over pieces with broad, shared state touched by many other modules. A boundary was 'bounded enough' when I could define a contract for it that didn't require the rest of the monolith to change in lockstep — if migrating it meant also touching three other modules at the same time, that was a signal that boundary was drawn wrong, and I'd look for a smaller, cleaner seam instead."
+ ],
+ cx:["also covers: <b>Dive Deep</b>, <b>Invent and Simplify</b>, <b>Bias for Action</b>"]},
+
+{track:"General \u00B7 Ownership",tier:"todo",lp:"Ownership",title:"AWS operational excellence",
+ company:"AWS",
+ sampleQ:"Tell me about a time you took ownership of a problem that wasn't officially part of your role.",
+ star:[],
+ probes:[],
+ todo:"Marked drafted in your tracker as your primary Ownership story but the full text wasn't retrievable here. Likely candidate: taking end-to-end responsibility for a system's reliability/on-call posture beyond your assigned scope. Worth re-drafting \u2014 Ownership is asked in nearly every SDE loop.",
+ cx:[]},
+
+{track:"General \u00B7 Ownership",tier:"common",lp:"Ownership",title:"Leading a team through mission-critical delivery",
+ company:"Reflexions Data \u00B7 2nd story",
+ sampleQ:"Describe a time you felt personally accountable for an outcome even though you weren't the only one responsible for it.",
+ star:[
+   ["s","Led a team of six engineers building high-availability web platforms (React, TypeScript, GraphQL, Node.js, CircleCI) for transit and payment clients \u2014 MBTA, OMNY, and BART."],
+   ["t","Owned the technical direction and delivery outcome for the team, not just your own individual tickets."],
+   ["a","[Fill in: the specific way you drove code review culture and full-stack delivery end-to-end \u2014 what you personally changed about how the team worked, not just what the team produced.]"],
+   ["r","Drove an 80% revenue increase through end-to-end ownership, strong code review culture, and full-stack delivery; mentored engineers and scaled best practices in responsive design and performance across the squad."],
+   ["learning","[Fill in: what taking ownership of the team's outcome \u2014 not just your own code \u2014 taught you about leadership without a formal title change.]"]
+ ],
+ probes:["What was your title vs. the actual scope of responsibility \u2014 were you the manager of record?","What's a decision the team made that you personally pushed for and it wasn't the popular choice?"],
+ cx:["resume-sourced \u2014 STAR narrative needs your specifics filled in"]},
+
+/* ===== RESERVE ===== */
+{track:"Reserve",tier:"todo",lp:"Think Big",title:"Not yet drafted",
+ company:"needs a story",
+ sampleQ:"Tell me about a time you proposed a bolder or broader solution than what was originally asked for.",
+ star:[],probes:[],
+ todo:"Look for a moment you proposed a bolder direction than what was asked \u2014 not just solving the ticket, but reframing the problem at a larger scale. The atomic-CSS platform rebuild or the AppSync simplification could be reframed here if you emphasize the scale of impact over the mechanics.",
+ cx:[]},
+
+{track:"Reserve",tier:"todo",lp:"Failure / What You'd Change",title:"Not yet drafted",
+ company:"needs a story",
+ sampleQ:"Tell me about a time you failed at something, and what you learned from it.",
+ star:[],probes:[],
+ todo:"This is the one most candidates under-prepare and Bar Raisers probe hardest. Pick something real \u2014 a wrong technical call, a missed estimate, a time you didn't dive deep enough \u2014 and be ready to own it without over-apologizing or deflecting to \"the team.\"",
+ cx:[]},
+
+{track:"Reserve",tier:"todo",lp:"Conflict with Peer/Manager",title:"Not yet drafted",
+ company:"needs a story",
+ sampleQ:"Tell me about a time you had a conflict with a peer or manager and how you resolved it.",
+ star:[],probes:[],
+ todo:"Look for a genuine disagreement with a peer or manager \u2014 ideally one where you didn't simply get your way, showing how you handled it (data, escalation, compromise, or committing after losing). Pairs naturally with Have Backbone; Disagree and Commit if you need a 2nd story there.",
+ cx:[]},
+];
+
+/* ---- app ---- */
+const TRACKS = ["All", ...Array.from(new Set(CARDS.map(c=>c.track)))];
+let filter="All", deck=CARDS.slice(), idx=0;
+const $=id=>document.getElementById(id);
+const TIER_LABEL={core:"Primary",common:"Backup",todo:"To Draft"};
+
+function buildFilters(){
+  const box=$("filters"); box.innerHTML="";
+  TRACKS.forEach(t=>{
+    const b=document.createElement("button");
+    b.className="chip"+(t===filter?" active":"");
+    b.textContent=t;
+    b.onclick=()=>{filter=t;applyFilter();};
+    box.appendChild(b);
+  });
+}
+function applyFilter(){
+  deck = filter==="All" ? CARDS.slice() : CARDS.filter(c=>c.track===filter);
+  idx=0; buildFilters(); render();
+}
+function renderStar(c){
+  let html = "";
+  if(c.star && c.star.length){
+    html += '<div class="star">';
+    c.star.forEach(([tag,text])=>{
+      const label = tag==="s"?"Situation":tag==="t"?"Task":tag==="a"?"Action":tag==="r"?"Result":"Learning";
+      const cls = tag==="learning" ? "star-row learning" : "star-row";
+      html += `<div class="${cls}"><span class="star-tag">${label}</span><span class="star-text">${text}</span></div>`;
+    });
+    html += "</div>";
+  }
+  if(c.todo){
+    html += `<div class="todo-box"><b>\u25B8 Not fully retrieved.</b> ${c.todo}</div>`;
+  }
+  if(c.probes && c.probes.length){
+    html += '<div class="probs"><div class="plabel">\u25B8 Likely Probes</div><div class="problist">';
+    c.probes.forEach(p=> html += `<div class="probitem">${p}</div>`);
+    html += "</div></div>";
+  }
+  return html;
+}
+function render(){
+  const c=deck[idx];
+  $("card").classList.remove("flipped");
+  $("f-track").textContent=c.track;
+  $("b-track").textContent=c.track;
+  ["f","b"].forEach(p=>{
+    const el=$(p+"-tier");
+    el.textContent=TIER_LABEL[c.tier];
+    el.className="tier "+c.tier;
+  });
+  $("f-lp").textContent=c.lp;
+  $("f-title").textContent=c.title;
+  $("f-sampleq").textContent=c.sampleQ||"";
+  $("b-lp").textContent=c.lp;
+  $("b-company").textContent=c.company;
+  $("b-body").innerHTML=renderStar(c);
+  $("b-cx").innerHTML=(c.cx||[]).map(x=>"<span>"+x+"</span>").join("");
+  $("pos").textContent=idx+1;
+  $("total").textContent=deck.length;
+  $("deckname").textContent=filter;
+  const bs=document.querySelector(".backscroll"); if(bs) bs.scrollTop=0;
+}
+function flip(e){if(e)e.stopPropagation();$("card").classList.toggle("flipped");}
+function next(e){if(e)e.stopPropagation();idx=(idx+1)%deck.length;render();}
+function prev(e){if(e)e.stopPropagation();idx=(idx-1+deck.length)%deck.length;render();}
+function shuffle(e){if(e)e.stopPropagation();for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}idx=0;render();}
+function todoOnly(e){if(e)e.stopPropagation();filter="All";deck=CARDS.filter(c=>c.tier==="todo");idx=0;buildFilters();$("deckname").textContent="To Draft";render();}
+function reset(e){if(e)e.stopPropagation();filter="All";applyFilter();}
+document.addEventListener("keydown",ev=>{
+  if(ev.key==="ArrowRight")next();
+  else if(ev.key==="ArrowLeft")prev();
+  else if(ev.key===" "){ev.preventDefault();flip();}
+  else if(ev.key.toLowerCase()==="s")shuffle();
+  else if(ev.key.toLowerCase()==="c")todoOnly();
+});
+buildFilters();render();
+</script>
+</body>
+</html>
