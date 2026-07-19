@@ -395,13 +395,13 @@ const CARDS = [
  cx:["also covers: <b>Have Backbone; Disagree and Commit</b>, <b>Deliver Results</b>, <b>Ownership</b>"]},
 
 /* ===== ROUND 4 ===== */
-{track:"Round 4 \u00B7 Bias for Action",tier:"core",lp:"Bias for Action",title:"Rapid prototyping for AWS ProServe under incomplete requirements",
+{track:"Round 4 \u00B7 Bias for Action",tier:"core",lp:"Bias for Action",title:"Rapid prototyping for Apex under incomplete requirements",
  company:"Apex Systems \u00B7 strongest, on-domain",
  sampleQ:"Tell me about a time you took action without waiting for complete information.",
  star:[
    ["s","At Apex, the US Army stakeholders came to me to build a Document / RAG Ingestion Pipeline but the specific customer requirements around the documents specs were vague, as they couldn't articulate it, and this product had to be delivered by the end of the month."],
-   ["t","I could have waited for fully baked requirements, but that would've cost real time on a problem actively slowing customer delivery."],
-   ["a","I made a calculated bet: instead of waiting, built a rough working prototype on Bedrock from best understanding of the actual bottleneck, which was re-embedding unchanged content. From there I set up hashing at doc and chunk granularity; only re-embed chunks whose hash changed."],
+   ["t","Instead of waiting, I built a rough working prototype on Bedrock from best understanding of the ask."],
+   ["a","I assumed at least 10,000 documents, roughly 10 pages each per a doc, roughly 2,000 tokens per a page, roughly 20,000 tokens per a doc. I also created a high level design architecture document for the customer and stakeholders to review, with my assumptions."],
    ["r","The prototype validated the direction and surfaced a wrong assumption early and cheaply, meaning the team course-corrected in days rather than discovering the gap after weeks of building against a theoretical spec."],
    ["learning","Waiting for perfect information often costs more than the risk of an imperfect first attempt \u2014 the key was sizing the bet so being wrong stayed cheap."]
  ],
