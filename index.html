@@ -401,7 +401,7 @@ const CARDS = [
  star:[
    ["s","At Apex, the US Army stakeholders came to me with a Document / RAG Ingestion Pipeline bottleneck, but requirements were vague, they knew the pain but hadn't specified a solution, and a complete spec would've taken weeks they didn't have."],
    ["t","I could have waited for fully baked requirements, but that would've cost real time on a problem actively slowing customer delivery."],
-   ["a","I made a calculated bet: instead of waiting, built a rough working prototype on Bedrock from best understanding of the actual bottleneck,deliberately scoped small so a wrong guess cost days, not weeks. I got it in front of the ProServe consultants fast and let their real reaction, not more speculation, decide what to build next."],
+   ["a","I made a calculated bet: instead of waiting, built a rough working prototype on Bedrock from best understanding of the actual bottleneck, which was re-embedding unchanged content. From there I set up hashing at doc and chunk granularity; only re-embed chunks whose hash changed."],
    ["r","The prototype validated the direction and surfaced a wrong assumption early and cheaply, meaning the team course-corrected in days rather than discovering the gap after weeks of building against a theoretical spec."],
    ["learning","Waiting for perfect information often costs more than the risk of an imperfect first attempt \u2014 the key was sizing the bet so being wrong stayed cheap."]
  ],
