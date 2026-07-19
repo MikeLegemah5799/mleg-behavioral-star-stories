@@ -450,15 +450,17 @@ const CARDS = [
  company:"Reflexions \u00B7 2nd story",
  sampleQ:"Describe a time you had to challenge a decision made above you while leading or representing a team.",
  star:[
-   ["s","While leading a team of six at Reflexions Data, a stakeholder wanted a technical direction for a customer-facing platform believed to create real problems \u2014 performance, maintainability, architecture risk \u2014 down the line."],
-   ["t","As the person setting technical direction, staying quiet to avoid conflict would've been easier, but believed it was the wrong call for the system the team would own long-term."],
-   ["a","I raised the concern directly and specifically \u2014 the concrete risk and what you'd seen go wrong with similar choices before, not just 'I don't like this' \u2014 and proposed an alternative. Made sure the team understood the disagreement had been voiced, so they didn't think it had been missed. When the decision landed [in your favor / against your recommendation], committed to it visibly to the team rather than continuing to signal reluctance."],
-   ["r","Cost efficiency went up by 20% and maintainability improved, with the team fully aligned on the chosen direction and confident in the decision-making process."],
+   ["s","While leading a team of six at Reflexions Data on the Boston MBTA transit project, a stakeholder wanted us to build the CMS in WordPress. Given the project's scalability, security, and customization requirements — a web app that needed to scale to potentially millions of users — I believed that was the wrong technical choice."],
+   ["t","As the person setting technical direction for the team, I had to decide whether to raise the disagreement directly or defer to the stakeholder's preference to avoid friction"],
+   ["a","I made the technical case directly: standard WordPress executes database queries and processes PHP on every single page view, which doesn't hold up at the scale and security bar this project needed, and I recommended a Laravel-based CMS instead. The stakeholder pushed back — they wanted WordPress for ease of content updates and a shorter timeline. Rather than treat this as win-or-lose, I laid out real pros and cons of each option and proposed OctoberCMS, a Laravel-based CMS, as a middle ground. The stakeholder still wasn't satisfied with a Laravel-based solution, so I researched further and landed on a third option: a headless WordPress architecture, which gave the stakeholder's team the content-editing interface they needed while isolating the backend and eliminating the server-side rendering and direct database exposure that were the real source of my original concerns. Once we agreed, I committed fully with my team — in our weekly meeting I was transparent that I'd originally pushed for Laravel and even proposed OctoberCMS as a compromise, so the team had real context, but framed headless WordPress as the plan going forward, and we got to work."],
+   ["r","We shipped a headless WordPress CMS that met the stakeholder's content-management needs while addressing the original scalability and security concerns — reduced attack surface, isolated backend, no per-request PHP execution — without the team second-guessing the direction once decided.
+"],
    ["learning","Backbone isn't about winning the disagreement \u2014 it's about making sure the best case got heard before a decision was made, and then giving the decision a real chance to succeed afterward."]
  ],
  probes:[
-   "What happened if the decision went against you \u2014 how did you actually behave differently the next day? \u2192 Explained the full reasoning behind the decision to the team, including the parts argued against, so they understood why rather than just that. Kept your own work and code reviews at full effort \u2014 no passive signals like slower turnaround on a decision you hadn't chosen; a team that senses its lead hasn't committed won't fully commit either.",
-   "How did your team react to watching you disagree and then commit? \u2192 A couple of engineers asked directly whether you still thought it was the wrong call; told them honestly the case had been made, it didn't carry the day, and the job now was to make it work \u2014 and that you'd back them the same way if they did the same. Set a durable team norm: disagreement welcome before a decision, not litigated after one."
+   "Why didn't the stakeholder accept your original Laravel recommendation — were they right to push back?",
+   "What would you have done if you couldn't find a third option?",
+   "How did your team react to hearing you'd originally disagreed?",
  ],
  cx:["also covers: <b>Ownership</b>, <b>Earn Trust</b>, <b>Highest Standards</b>"]},
 
