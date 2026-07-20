@@ -328,14 +328,14 @@ const CARDS = [
  "What's a time a feature shipped on time but didn't move the metric, what did you do? Yes — while working on the MBTA website, we redesigned portions of the larger site for the CharlieCard, which is Boston's version of OMNY. Specifically, we redesigned the fares pages. It shipped on time, passed QA, and by every 'feature complete' measure it was done. But when I looked at the usage data afterward, checkout completion rate didn't move the way we expected — it actually dipped slightly. Rather than call it done because the ticket was closed, I went back into the usage data to understand why, and found that the new flow had added friction we hadn't anticipated — the redesigned fares pages, folded into the larger MBTA site's structure and conventions, made the CharlieCard purchase path more confusing rather than simpler for the specific way riders were trying to buy fares. I brought that back to the team as a real finding rather than letting 'shipped' stand in for 'successful.' Instead of trying to patch the friction within the existing site's structure, we made the case that CharlieCard needed its own dedicated experience rather than being a redesigned section of the larger MBTA site — and over about 6 weeks, we built a separate website specifically for CharlieCard, which is what actually resolved the friction and moved checkout completion in the right direction. What I took from it: 'on time and code complete' is a process metric, not a business outcome. The business result is the only thing that actually counts as delivered."],
  cx:["also covers: <b>Customer Obsession</b>, <b>Ownership</b>, <b>Bias for Action</b>"]},
 
-{track:"Round 3 \u00B7 Deliver Results",tier:"common",lp:"Deliver Results",title:"Delivering under mission-critical constraints at hyperscale",
- company:"Zivaro \u00B7 2nd story",
+{track:"Round 3 Deliver Results",tier:"common",lp:"Deliver Results",title:"Delivering under mission-critical constraints at hyperscale",
+ company:"Zivaro 2nd story",
  sampleQ:"Tell me about a time you had to balance speed of delivery against quality or stability requirements.",
  star:[
-   ["s","I engineered React/Next.js applications for the US Space Force Hyperion platforms, a domain where cutting corners on testing coverage or stability to hit a date isn't an acceptable trade-off."],
-   ["t","I had to deliver features on schedule while maintaining at least 80% code testing coverage, performance, and stability in distributed systems at scale, without letting either side slip."],
-   ["a","I built tests with Jest, Playwright, and Cypress for end to end and automated testing as a non-negotiable part of the delivery process rather than an afterthought, and I had to de-scope a nonessential feature to protect stability, or catching a regression before release."],
-   ["r","I maintained 95% code coverage, performance, and stability for a mission-critical system while still delivering on the required cadence."],
+   ["s","I engineered React/Next.js applications for the US Space Force Hyperion platform — a domain where cutting corners on test coverage or stability to hit a date isn't an acceptable trade-off."],
+   ["t","I had to deliver features on schedule while maintaining at least 80% test coverage, performance, and stability in distributed systems at scale, without letting either side slip."],
+   ["a","I built Jest, Playwright, and Cypress test coverage as a non-negotiable part of the delivery process, not an afterthought. During a migration from Context API to Redux, changes to UI components and state logic broke the exoplanetary data and constellation info upload forms — but Playwright's end-to-end tests caught the regression before it reached production, rather than it surfacing after release."],
+   ["r","I maintained 95% code coverage, performance, and stability for a mission-critical system while still delivering on the required cadence — the migration shipped on schedule, with the regression fixed before launch instead of discovered after"],
    ["learning","On systems where the cost of a defect is severe, protecting the non-negotiables isn't in conflict with delivery it is how you deliver."]
  ],
  probes:[
@@ -344,8 +344,8 @@ const CARDS = [
  ],
  cx:["also covers: <b>Highest Standards</b>, <b>Ownership</b>"]},
 
-{track:"Round 3 \u00B7 Highest Standards",tier:"core",lp:"Insist on the Highest Standards",title:"Defining measurable quality standards for AI agents",
- company:"AWS \u00B7 strongest, on-domain",
+{track:"Round 3 Highest Standards",tier:"core",lp:"Insist on the Highest Standards",title:"Defining measurable quality standards for AI agents",
+ company:"AWS strongest, on-domain",
  sampleQ:"Tell me about a time you refused to accept 'good enough' and insisted on a higher bar.",
  star:[
    ["s","At AWS, contact center agent behavior — for an insurance company handling minor claims — was hard to trust in production. Quality was subjective, agents were probabilistic, and there was no measurable bar for what correct agent behavior meant."],
