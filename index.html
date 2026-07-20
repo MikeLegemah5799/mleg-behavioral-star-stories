@@ -365,11 +365,11 @@ const CARDS = [
  company:"About Objects \u00B7 2nd story",
  sampleQ:"Describe a time you held your team to a higher standard than they were used to, and how they responded.",
  star:[
-   ["s","At About Objects, Engineering maturity was uneven on a regulated clinical-trial product \u2014 testing for accessibility weren't where they needed to be for a product with real compliance and patient-safety stakes."],
-   ["t","I insisted on a higher accessibility testing bar, took responsibility for bringing the whole team up to snuff rather than just fixing issues personally."],
-   ["a","I mentored engineers in accessibility testing using WAVE and axedevtools, established accessibility standards, enforced practices in code reviews, and baked accessibility checks into CI/CD so regressions were caught automatically rather than relying on personal vigilance."],
-   ["r","I raised accessibilty compliance from WCAG 2.1 to 2.2, increased lighthouse scores to 98%, and because the team owned it, the standard stuck."],
-   ["learning","Being the one person who cares about quality doesn't scale. Raising a team's baseline is more durable and higher-impact than personally catching every defect."]
+   ["s","At About Objects, engineering maturity was uneven on a regulated clinical-trial product — accessibility testing wasn't where it needed to be for a product with real compliance and patient-safety stakes."],
+   ["t","I insisted on a higher accessibility bar and took responsibility for bringing the whole team up, rather than just fixing issues personally."],
+   ["a","I mentored engineers in accessibility testing using WAVE and axe DevTools, and found real, concrete problems: CTA buttons with dark text on dark backgrounds, and — more seriously — light text on important disclaimer pages, along with missing ARIA attributes across the markup. I fixed the contrast issues and added the missing ARIA attributes, but more importantly, I set up a pre-commit hook using Husky to run ESLint and block any commit containing markup without proper accessibility attributes — so the standard was enforced automatically rather than depending on someone remembering to check in review."],
+   ["r","Accessibility compliance rose from WCAG 2.1 to 2.2, Lighthouse scores reached 98%, and because the enforcement was baked into the commit process rather than owned by me personally, the standard stuck after I moved on."],
+   ["learning","On a patient-safety product, an accessibility issue like unreadable disclaimer text isn't cosmetic — it's a real compliance risk. Catching it with a person is unreliable; catching it with a pre-commit hook means it can't ship at all, which is the only kind of highest standard that actually holds over time."]
  ],
  probes:[
    "How did you get buy-in for the added rigor? I connected it to something the team already cared about a defect or accessibility gap here wasn't just a bug, it was a compliance and patient-safety risk \u2014 and paired with engineers early so the value real debugging time saved proved itself rather than needing to be sold.",
